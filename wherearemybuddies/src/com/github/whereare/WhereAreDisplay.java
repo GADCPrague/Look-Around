@@ -12,7 +12,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -172,7 +171,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                     myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
             
             float y = 20;
-            float markerYPosition = canvas.getHeight() - 50;
+            float markerYPosition = canvas.getHeight() - backgroundBitmap.getHeight();
             for (PositionData position : friendsLocations) {
                 int angle = (int) (position.getBearing() - azimuth_angle);
                 while (angle < 0) {
@@ -193,17 +192,15 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                     canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
                     Rect clipBounds = canvas.getClipBounds();
                     canvas.clipRect(new RectF(x + 100, markerYPosition, 
-                            x + 260, markerYPosition + 50));
+                            x + backgroundBitmap.getWidth(), markerYPosition + backgroundBitmap.getHeight()));
                     paint.setColor(Color.WHITE);
                     paint.setTextSize(30);
                     canvas.drawText(position.getName(), x + 105, markerYPosition + 40, paint);
-                    canvas.clipRect(clipBounds, Region.Op.REPLACE);
-                    canvas.clipRect(new RectF(x + 100, markerYPosition + 50, 
-                            x + 260, markerYPosition + 100));
                     paint.setTextSize(24);
-                    canvas.drawText(position.getDistance() + "m", x + 105, markerYPosition + 90, paint);
+                    canvas.drawText(position.getDistance() + "m", 
+                            x + 105, markerYPosition + backgroundBitmap.getHeight() * 0.9f, paint);
                     canvas.clipRect(clipBounds, Region.Op.REPLACE);
-                    markerYPosition -= 30;
+                    markerYPosition -= backgroundBitmap.getHeight() * 0.7;
                 }
             }
             super.onDraw(canvas);
