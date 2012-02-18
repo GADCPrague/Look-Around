@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Where are my Buddies</string>
+  <string name="menu_item_map">Show Directions</string>
+  <string name="menu_item_list">Show Distances</string>
+  <string name="menu_item_refresh">Refresh Contacts</string>
+    
+</resources>

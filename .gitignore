@@ -1,3 +1,6 @@
-wherearemybuddies/bin
-wherearemybuddies/gen
+/wherearemybuddies/bin/
+/wherearemybuddies/gen/
 
+/wherearemybuddies/nbandroid/
+/wherearemybuddies-test/bin/
+/wherearemybuddies-test/gen/
