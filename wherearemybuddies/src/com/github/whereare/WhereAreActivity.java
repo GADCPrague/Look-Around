@@ -17,6 +17,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -212,7 +213,14 @@ public class WhereAreActivity extends Activity {
     // Check for each known menu item
     case (MENU_ITEM_MAP):
       // Start the Map Activity
-      startActivity(new Intent(this, WhereAreDisplay.class));
+      Intent intent = new Intent(this, WhereAreDisplay.class);
+      intent.putParcelableArrayListExtra(
+              WhereAreDisplay.FRIENDS_LOCATIONS, 
+              new ArrayList<Parcelable>(friendLocations.values()));
+      intent.putExtra(
+              WhereAreDisplay.MY_LOCATION, 
+              currentLocation);
+      startActivity(intent);
       return true;
     case (MENU_ITEM_REFRESH):
       // Refresh the Friend Location hash
