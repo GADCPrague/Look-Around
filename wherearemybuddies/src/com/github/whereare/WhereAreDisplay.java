@@ -14,7 +14,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -31,7 +30,8 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
     public static final String MY_LOCATION = "myLocations";
     
     /** half of the visible angle. */
-    private static float VISIBLE_AZIMUTH_ANGLE = 30f;
+    private static float MIN_BEARING = -30f;
+    private static float MAX_BEARING = 30f;
     
     private SensorManager mSensorManager;
     private Sensor mOrientation;
@@ -40,7 +40,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
     private float pitch_angle = 0f;
     private float roll_angle = 0f;
     private Location myLocation;
-    private ArrayList<Location> friendsLocations;
+    private ArrayList<PositionData> friendsLocations;
     private FriendsView mDraw;
   
     @Override
@@ -157,15 +157,33 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
             Log.d("whereare", "friends view drawing " + friendsLocations.size());
             Paint paint = new Paint();
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.BLACK);
-            canvas.drawText("Test Text", 10, 10, paint);
+            paint.setTextSize(14);
+            paint.setColor(Color.BLUE);
+            canvas.drawText("azimuth " + azimuth_angle + ", pitch angle " + 
+                    pitch_angle + ", roll angle " + roll_angle + " lat " + 
+                    myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
             
-            for (Location l : friendsLocations) {
-                PositionData position = new PositionData(myLocation, l);
-                float angle = position.getBearing() - azimuth_angle;
-                if (Math.abs(angle) < VISIBLE_AZIMUTH_ANGLE) {
-                    float x = canvas.getWidth() * (angle + VISIBLE_AZIMUTH_ANGLE);
+            float y = 20;
+            float markerYPosition = canvas.getHeight() - 50;
+            for (PositionData position : friendsLocations) {
+                int angle = (int) (position.getBearing() - azimuth_angle);
+                while (angle < 0) {
+                    angle += 360;
+                }
+                // this would be right formula if the azimuth would lead in camera diraction
+                // (angle + 180) % 360 - 180;
+                // skip '+180' to turn it around
+                angle = angle % 360 - 180;
+                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
+                        " long " + position.getLocation().getLongitude(), 10, y, paint);
+                y += 17;
+                if (angle > MIN_BEARING && angle < MAX_BEARING) {
+                    Log.d("whereare", "paint!");
+                    float x = canvas.getWidth() * (angle - MIN_BEARING) / (MAX_BEARING - MIN_BEARING);
                     canvas.drawLine(x, 0, x, canvas.getHeight(), paint);
+                    paint.setTextSize(25);
+                    canvas.drawText(position.getName() + " (" + position.getDistance() + "m)", x + 5, markerYPosition, paint);
+                    markerYPosition -= 30;
                 }
             }
             super.onDraw(canvas);

@@ -29,6 +29,7 @@ public class WhereAreActivity extends Activity {
 
   private Map<String, Location> friendLocations;
   private ArrayList<String> friendDistanceList;
+  private ArrayList<PositionData> friendsList;
   private Location currentLocation;
   private ArrayAdapter<String> aa;
   private LocationManager locationManager;
@@ -52,6 +53,7 @@ public class WhereAreActivity extends Activity {
 
     // Bind the ListView to an ArrayList of strings.
     friendDistanceList = new ArrayList<String>();
+    friendsList = new ArrayList<PositionData>();
     ListView lv = (ListView) findViewById(R.id.myListView);
     aa = new ArrayAdapter<String>(getApplicationContext(),
             android.R.layout.simple_list_item_1, friendDistanceList);
@@ -142,6 +144,7 @@ public class WhereAreActivity extends Activity {
    */
   private void refreshListView() {
     friendDistanceList.clear();
+    friendsList.clear();
 
     if (currentLocation != null && friendLocations.size() > 0) {
       Iterator<String> e = friendLocations.keySet().iterator();
@@ -149,7 +152,7 @@ public class WhereAreActivity extends Activity {
         // Get the name and location
         String name = e.next();
         Location location = friendLocations.get(name);
-        PositionData position = new PositionData(currentLocation, location);
+        PositionData position = new PositionData(currentLocation, location, name);
 
         // Find their distance from you
         int distance = (int) position.getDistance();
@@ -159,6 +162,7 @@ public class WhereAreActivity extends Activity {
 
         // Update the ArrayList
         friendDistanceList.add(str);
+        friendsList.add(position);
       } while (e.hasNext());
     }
     aa.notifyDataSetChanged();
@@ -216,7 +220,7 @@ public class WhereAreActivity extends Activity {
       Intent intent = new Intent(this, WhereAreDisplay.class);
       intent.putParcelableArrayListExtra(
               WhereAreDisplay.FRIENDS_LOCATIONS, 
-              new ArrayList<Parcelable>(friendLocations.values()));
+              new ArrayList<Parcelable>(friendsList));
       intent.putExtra(
               WhereAreDisplay.MY_LOCATION, 
               currentLocation);
