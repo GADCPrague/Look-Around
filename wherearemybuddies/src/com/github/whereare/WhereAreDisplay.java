@@ -75,7 +75,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
         for (PositionData data : friendsLocations) {
             if (data.getContactUri() != null) {
                 Bitmap contactPhoto = Contacts.People.loadContactPhoto(
-                        this, data.getContactUri(), android.R.drawable.ic_delete, null);
+                        this, data.getContactUri(), R.drawable.avatar, null);
                 if (contactPhoto != null) {
                     imageCache.put(data.getContactUri(), contactPhoto);
                 }
