@@ -1,6 +1,7 @@
 package com.github.whereare;
 
 import android.location.Location;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -15,6 +16,7 @@ public class PositionData implements Parcelable {
     /** Distance (in meters). */
     private final float distance;
     private final String name;
+    private final Uri contactUri;
     
     public static final Parcelable.Creator<PositionData> CREATOR = new Parcelable.Creator<PositionData>() {
 
@@ -22,7 +24,8 @@ public class PositionData implements Parcelable {
             return new PositionData(
                     (Location) source.readParcelable(null), 
                     (Location) source.readParcelable(null), 
-                    source.readString());
+                    source.readString(),
+                    Uri.parse(source.readString()));
         }
 
         public PositionData[] newArray(int size) {
@@ -30,12 +33,13 @@ public class PositionData implements Parcelable {
         }
     };
 
-    public PositionData(Location referencePoint, Location location, String name) {
+    public PositionData(Location referencePoint, Location location, String name, Uri contactUri) {
         this.referencePoint = referencePoint;
         this.location = location;
         bearing = referencePoint.bearingTo(location);
         distance = referencePoint.distanceTo(location);
         this.name = name;
+        this.contactUri = contactUri;
     }
 
     public float getBearing() {
@@ -58,6 +62,10 @@ public class PositionData implements Parcelable {
         return name;
     }
 
+    public Uri getContactUri() {
+        return contactUri;
+    }
+
     public int describeContents() {
         return 1;
     }
@@ -66,5 +74,6 @@ public class PositionData implements Parcelable {
         dest.writeParcelable(referencePoint, flags);
         dest.writeParcelable(location, flags);
         dest.writeString(name);
+        dest.writeString(contactUri.toString());
     }
 }

@@ -1,5 +1,6 @@
 package com.github.whereare;
 
+import android.content.ContentUris;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -11,9 +12,11 @@ import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.provider.Contacts;
 import android.provider.Contacts.People;
 import android.util.Log;
+import android.util.Pair;
 
 public class FriendLocationLookup {
 
@@ -35,8 +38,8 @@ public class FriendLocationLookup {
    *          Calling application's context
    * @return Hash of contact names with their physical locations
    */
-  public static Map<String, Location> getFriendLocations(Context context) {
-    HashMap<String, Location> result = new HashMap<String, Location>();
+  public static Map<String, Pair<Location, Uri>> getFriendLocations(Context context) {
+    HashMap<String, Pair<Location, Uri>> result = new HashMap<String, Pair<Location, Uri>>();
 
     // Return a query result of all the people in the contact list.
     cursor = context.getContentResolver().query(People.CONTENT_URI, null, null,
@@ -87,7 +90,8 @@ public class FriendLocationLookup {
           }
           
           // Populate the result hash
-          result.put(name, friendLocation);
+          result.put(name, 
+                  Pair.create(friendLocation, ContentUris.withAppendedId(People.CONTENT_URI, cursor.getLong(personID))));
           Log.d("whereare", "Added location of " + name + ", " + friendLocation);
         }
 

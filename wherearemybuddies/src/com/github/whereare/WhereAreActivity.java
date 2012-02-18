@@ -16,9 +16,11 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -27,7 +29,7 @@ import android.widget.TextView;
 
 public class WhereAreActivity extends Activity {
 
-  private Map<String, Location> friendLocations;
+  private Map<String, Pair<Location, Uri>> friendLocations;
   private ArrayList<String> friendDistanceList;
   private ArrayList<PositionData> friendsList;
   private Location currentLocation;
@@ -151,8 +153,8 @@ public class WhereAreActivity extends Activity {
       do {
         // Get the name and location
         String name = e.next();
-        Location location = friendLocations.get(name);
-        PositionData position = new PositionData(currentLocation, location, name);
+        Pair<Location, Uri> contact = friendLocations.get(name);
+        PositionData position = new PositionData(currentLocation, contact.first, name, contact.second);
 
         // Find their distance from you
         int distance = (int) position.getDistance();

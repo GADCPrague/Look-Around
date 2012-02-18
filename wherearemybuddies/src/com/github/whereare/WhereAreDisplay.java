@@ -18,7 +18,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Contacts;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -27,6 +29,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WhereAreDisplay extends Activity implements SensorEventListener {
 
@@ -46,6 +50,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
     private float roll_angle = 0f;
     private Location myLocation;
     private ArrayList<PositionData> friendsLocations;
+    private Map<Uri, Bitmap> imageCache;
     private FriendsView mDraw;
     private Bitmap backgroundBitmap;
   
@@ -66,6 +71,16 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
         setContentView(mPreview);
         addContentView(mDraw, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         backgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image);
+        imageCache = new HashMap<Uri, Bitmap>();
+        for (PositionData data : friendsLocations) {
+            if (data.getContactUri() != null) {
+                Bitmap contactPhoto = Contacts.People.loadContactPhoto(
+                        this, data.getContactUri(), android.R.drawable.ic_delete, null);
+                if (contactPhoto != null) {
+                    imageCache.put(data.getContactUri(), contactPhoto);
+                }
+            }
+        }
     }
 
     @Override
@@ -181,8 +196,8 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 // (angle + 180) % 360 - 180;
                 // skip '+180' to turn it around
                 angle = angle % 360 - 180;
-                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
-                        " long " + position.getLocation().getLongitude(), 10, y, paint);
+//                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
+//                        " long " + position.getLocation().getLongitude(), 10, y, paint);
                 y += 17;
                 if (angle > MIN_BEARING && angle < MAX_BEARING) {
                     Log.d("whereare", "paint!");
@@ -190,6 +205,11 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                     canvas.drawLine(x, 0, x, canvas.getHeight(), paint);
                     paint.setTextSize(25);
                     canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
+                    Bitmap contactImg = imageCache.get(position.getContactUri());
+                    if (contactImg != null) {
+                        canvas.drawBitmap(contactImg, x + 5, markerYPosition + 5, paint);
+                    }
+                    
                     Rect clipBounds = canvas.getClipBounds();
                     canvas.clipRect(new RectF(x + 100, markerYPosition, 
                             x + backgroundBitmap.getWidth(), markerYPosition + backgroundBitmap.getHeight()));
