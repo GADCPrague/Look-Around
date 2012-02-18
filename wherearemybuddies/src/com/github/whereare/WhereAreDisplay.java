@@ -4,9 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -42,6 +48,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
     private Location myLocation;
     private ArrayList<PositionData> friendsLocations;
     private FriendsView mDraw;
+    private Bitmap backgroundBitmap;
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
         mDraw = new FriendsView(this);
         setContentView(mPreview);
         addContentView(mDraw, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        backgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image);
     }
 
     @Override
@@ -182,7 +190,19 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                     float x = canvas.getWidth() * (angle - MIN_BEARING) / (MAX_BEARING - MIN_BEARING);
                     canvas.drawLine(x, 0, x, canvas.getHeight(), paint);
                     paint.setTextSize(25);
-                    canvas.drawText(position.getName() + " (" + position.getDistance() + "m)", x + 5, markerYPosition, paint);
+                    canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
+                    Rect clipBounds = canvas.getClipBounds();
+                    canvas.clipRect(new RectF(x + 100, markerYPosition, 
+                            x + 260, markerYPosition + 50));
+                    paint.setColor(Color.WHITE);
+                    paint.setTextSize(30);
+                    canvas.drawText(position.getName(), x + 105, markerYPosition + 40, paint);
+                    canvas.clipRect(clipBounds, Region.Op.REPLACE);
+                    canvas.clipRect(new RectF(x + 100, markerYPosition + 50, 
+                            x + 260, markerYPosition + 100));
+                    paint.setTextSize(24);
+                    canvas.drawText(position.getDistance() + "m", x + 105, markerYPosition + 90, paint);
+                    canvas.clipRect(clipBounds, Region.Op.REPLACE);
                     markerYPosition -= 30;
                 }
             }
