@@ -148,11 +148,13 @@ public class WhereAreActivity extends Activity {
         // Get the name and location
         String name = e.next();
         Location location = friendLocations.get(name);
+        PositionData position = new PositionData(currentLocation, location);
 
         // Find their distance from you
-        int distance = (int) currentLocation.distanceTo(location);
+        int distance = (int) position.getDistance();
+        int bearing = (int) position.getBearing();
 
-        String str = name + " (" + String.valueOf(distance) + "m)";
+        String str = name + " (" + String.valueOf(distance) + "m, " + bearing + "\u00b0)";
 
         // Update the ArrayList
         friendDistanceList.add(str);
