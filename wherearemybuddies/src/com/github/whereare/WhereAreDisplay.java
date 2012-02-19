@@ -192,7 +192,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                     myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
             
             float y = 20;
-            float markerYPosition = canvas.getHeight() - backgroundBitmap.getHeight();
+            float markerYPosition = canvas.getHeight() - backgroundBitmap.getHeight() * 1.5f;
             SortedSet<PositionData> paintedFriends = new TreeSet(new Comparator<PositionData>() {
 
                 public int compare(PositionData object1, PositionData object2) {
@@ -228,8 +228,10 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 angle = angle % 360 - 180;
                 paint.setTextSize(14);
                 y += 17;
-                float x = canvas.getWidth() * (angle - MIN_BEARING) / (MAX_BEARING - MIN_BEARING);
-                canvas.drawLine(x, 0, x, canvas.getHeight(), paint);
+                float barX = canvas.getWidth() * (angle - MIN_BEARING) / (MAX_BEARING - MIN_BEARING);
+                float x = barX - backgroundBitmap.getWidth() / 2;
+                paint.setColor(Color.BLACK);
+                canvas.drawLine(barX, markerYPosition, barX, canvas.getHeight(), paint);
                 paint.setTextSize(25);
                 canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
                 Bitmap contactImg = imageCache.get(position.getContactUri());
