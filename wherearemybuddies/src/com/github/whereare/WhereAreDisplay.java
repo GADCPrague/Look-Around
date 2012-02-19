@@ -192,7 +192,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
 //                    myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
             
             float y = 20;
-            float markerYPosition = canvas.getHeight() - backgroundBitmap.getHeight() * 1.5f;
+            float markerYPosition = canvas.getHeight() - backgroundBitmap.getHeight();
             SortedSet<PositionData> paintedFriends = new TreeSet(new Comparator<PositionData>() {
 
                 public int compare(PositionData object1, PositionData object2) {
@@ -230,8 +230,8 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 y += 17;
                 float barX = canvas.getWidth() * (angle - MIN_BEARING) / (MAX_BEARING - MIN_BEARING);
                 float x = barX - backgroundBitmap.getWidth() / 2;
-                paint.setColor(Color.BLACK);
-                canvas.drawLine(barX, markerYPosition, barX, canvas.getHeight(), paint);
+//                paint.setColor(Color.BLACK);
+//                canvas.drawLine(barX, markerYPosition, barX, canvas.getHeight(), paint);
                 paint.setTextSize(25);
                 canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
                 Bitmap contactImg = imageCache.get(position.getContactUri());
@@ -247,9 +247,9 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 canvas.drawText(position.getName(), x + 105, markerYPosition + 40, paint);
                 paint.setTextSize(24);
                 canvas.drawText(Utils.formatDistance(position.getDistance()), 
-                        x + 105, markerYPosition + backgroundBitmap.getHeight() * 0.9f, paint);
+                        x + 105, markerYPosition + backgroundBitmap.getHeight() * 0.6f, paint);
                 canvas.clipRect(clipBounds, Region.Op.REPLACE);
-                markerYPosition -= backgroundBitmap.getHeight() * 0.7;
+                markerYPosition -= backgroundBitmap.getHeight() * 0.55;
             }
             super.onDraw(canvas);
         }
