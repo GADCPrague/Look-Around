@@ -187,9 +187,9 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
             paint.setStyle(Paint.Style.FILL);
             paint.setTextSize(14);
             paint.setColor(Color.BLUE);
-            canvas.drawText("azimuth " + azimuth_angle + ", pitch angle " + 
-                    pitch_angle + ", roll angle " + roll_angle + " lat " + 
-                    myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
+//            canvas.drawText("azimuth " + azimuth_angle + ", pitch angle " + 
+//                    pitch_angle + ", roll angle " + roll_angle + " lat " + 
+//                    myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
             
             float y = 20;
             float markerYPosition = canvas.getHeight() - backgroundBitmap.getHeight() * 1.5f;
@@ -210,8 +210,8 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 // skip '+180' to turn it around
                 angle = angle % 360 - 180;
                 paint.setTextSize(14);
-                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
-                        " long " + position.getLocation().getLongitude(), 10, y, paint);
+//                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
+//                        " long " + position.getLocation().getLongitude(), 10, y, paint);
                 y += 17;
                 if (angle > MIN_BEARING && angle < MAX_BEARING) {
                     paintedFriends.add(position);
