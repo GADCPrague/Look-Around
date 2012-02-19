@@ -53,6 +53,14 @@ public class FriendLocationLookup {
       do {
         // Extract the name.
         String name = cursor.getString(nameIdx);
+        int idx = name != null ? name.indexOf(' ') : 0;
+        if (idx > 0) {
+            if (name.length() > idx + 1) {
+                name = name.substring(0, idx + 2) + '.';
+            } else {
+                name = name.substring(0, idx);
+            }
+        }
         String id = cursor.getString(personID);
 
         // Extract the address.

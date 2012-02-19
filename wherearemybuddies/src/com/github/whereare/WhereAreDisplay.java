@@ -29,14 +29,19 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class WhereAreDisplay extends Activity implements SensorEventListener {
 
     public static final String FRIENDS_DATA = "friendsData";
     public static final String FRIENDS_LOCATIONS = "friendsLocations";
     public static final String MY_LOCATION = "myLocations";
+    
+    private static final int IMAGE_SIZE = 66;
     
     /** half of the visible angle. */
     private static float MIN_BEARING = -30f;
@@ -77,7 +82,8 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 Bitmap contactPhoto = Contacts.People.loadContactPhoto(
                         this, data.getContactUri(), R.drawable.avatar, null);
                 if (contactPhoto != null) {
-                    imageCache.put(data.getContactUri(), contactPhoto);
+                    imageCache.put(data.getContactUri(), 
+                            Utils.getResizedBitmap(contactPhoto, IMAGE_SIZE, IMAGE_SIZE));
                 }
             }
         }
@@ -181,12 +187,19 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
             paint.setStyle(Paint.Style.FILL);
             paint.setTextSize(14);
             paint.setColor(Color.BLUE);
-            canvas.drawText("azimuth " + azimuth_angle + ", pitch angle " + 
-                    pitch_angle + ", roll angle " + roll_angle + " lat " + 
-                    myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
+//            canvas.drawText("azimuth " + azimuth_angle + ", pitch angle " + 
+//                    pitch_angle + ", roll angle " + roll_angle + " lat " + 
+//                    myLocation.getLatitude() + " lon " + myLocation.getLongitude(), 10, 10, paint);
             
             float y = 20;
             float markerYPosition = canvas.getHeight() - backgroundBitmap.getHeight();
+            SortedSet<PositionData> paintedFriends = new TreeSet(new Comparator<PositionData>() {
+
+                public int compare(PositionData object1, PositionData object2) {
+                    int cmp = Float.compare(object2.getDistance(), object1.getDistance());
+                    return cmp != 0 ? cmp : object2.getName().compareTo(object1.getName());
+                }
+            });
             for (PositionData position : friendsLocations) {
                 int angle = (int) (position.getBearing() - azimuth_angle);
                 while (angle < 0) {
@@ -196,32 +209,47 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 // (angle + 180) % 360 - 180;
                 // skip '+180' to turn it around
                 angle = angle % 360 - 180;
+                paint.setTextSize(14);
 //                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
 //                        " long " + position.getLocation().getLongitude(), 10, y, paint);
                 y += 17;
                 if (angle > MIN_BEARING && angle < MAX_BEARING) {
-                    Log.d("whereare", "paint!");
-                    float x = canvas.getWidth() * (angle - MIN_BEARING) / (MAX_BEARING - MIN_BEARING);
-                    canvas.drawLine(x, 0, x, canvas.getHeight(), paint);
-                    paint.setTextSize(25);
-                    canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
-                    Bitmap contactImg = imageCache.get(position.getContactUri());
-                    if (contactImg != null) {
-                        canvas.drawBitmap(contactImg, x + 5, markerYPosition + 5, paint);
-                    }
-                    
-                    Rect clipBounds = canvas.getClipBounds();
-                    canvas.clipRect(new RectF(x + 100, markerYPosition, 
-                            x + backgroundBitmap.getWidth(), markerYPosition + backgroundBitmap.getHeight()));
-                    paint.setColor(Color.WHITE);
-                    paint.setTextSize(30);
-                    canvas.drawText(position.getName(), x + 105, markerYPosition + 40, paint);
-                    paint.setTextSize(24);
-                    canvas.drawText(position.getDistance() + "m", 
-                            x + 105, markerYPosition + backgroundBitmap.getHeight() * 0.9f, paint);
-                    canvas.clipRect(clipBounds, Region.Op.REPLACE);
-                    markerYPosition -= backgroundBitmap.getHeight() * 0.7;
+                    paintedFriends.add(position);
                 }
+            }
+            for (PositionData position : paintedFriends) {
+                int angle = (int) (position.getBearing() - azimuth_angle);
+                while (angle < 0) {
+                    angle += 360;
+                }
+                // this would be right formula if the azimuth would lead in camera diraction
+                // (angle + 180) % 360 - 180;
+                // skip '+180' to turn it around
+                angle = angle % 360 - 180;
+                paint.setTextSize(14);
+                y += 17;
+                float barX = canvas.getWidth() * (angle - MIN_BEARING) / (MAX_BEARING - MIN_BEARING);
+                float x = barX - backgroundBitmap.getWidth() / 2;
+//                paint.setColor(Color.BLACK);
+//                canvas.drawLine(barX, markerYPosition, barX, canvas.getHeight(), paint);
+                paint.setTextSize(25);
+                canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
+                Bitmap contactImg = imageCache.get(position.getContactUri());
+                if (contactImg != null) {
+                    canvas.drawBitmap(contactImg, x + 10, markerYPosition + 10, paint);
+                }
+
+                Rect clipBounds = canvas.getClipBounds();
+                canvas.clipRect(new RectF(x + 100, markerYPosition, 
+                        x + backgroundBitmap.getWidth(), markerYPosition + backgroundBitmap.getHeight()));
+                paint.setColor(Color.WHITE);
+                paint.setTextSize(30);
+                canvas.drawText(position.getName(), x + 105, markerYPosition + 40, paint);
+                paint.setTextSize(24);
+                canvas.drawText(Utils.formatDistance(position.getDistance()), 
+                        x + 105, markerYPosition + backgroundBitmap.getHeight() * 0.6f, paint);
+                canvas.clipRect(clipBounds, Region.Op.REPLACE);
+                markerYPosition -= backgroundBitmap.getHeight() * 0.55;
             }
             super.onDraw(canvas);
         }
