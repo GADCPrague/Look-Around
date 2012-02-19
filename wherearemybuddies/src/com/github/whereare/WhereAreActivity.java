@@ -160,7 +160,7 @@ public class WhereAreActivity extends Activity {
         int distance = (int) position.getDistance();
         int bearing = (int) position.getBearing();
 
-        String str = name + " (" + String.valueOf(distance) + "m, " + bearing + "\u00b0)";
+        String str = name + " (" + Utils.formatDistance(distance) + ", " + bearing + "\u00b0)";
 
         // Update the ArrayList
         friendDistanceList.add(str);

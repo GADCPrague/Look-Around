@@ -38,6 +38,8 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
     public static final String FRIENDS_LOCATIONS = "friendsLocations";
     public static final String MY_LOCATION = "myLocations";
     
+    private static final int IMAGE_SIZE = 66;
+    
     /** half of the visible angle. */
     private static float MIN_BEARING = -30f;
     private static float MAX_BEARING = 30f;
@@ -77,7 +79,8 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 Bitmap contactPhoto = Contacts.People.loadContactPhoto(
                         this, data.getContactUri(), R.drawable.avatar, null);
                 if (contactPhoto != null) {
-                    imageCache.put(data.getContactUri(), contactPhoto);
+                    imageCache.put(data.getContactUri(), 
+                            Utils.getResizedBitmap(contactPhoto, IMAGE_SIZE, IMAGE_SIZE));
                 }
             }
         }
@@ -196,8 +199,9 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                 // (angle + 180) % 360 - 180;
                 // skip '+180' to turn it around
                 angle = angle % 360 - 180;
-//                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
-//                        " long " + position.getLocation().getLongitude(), 10, y, paint);
+                paint.setTextSize(14);
+                canvas.drawText(angle + ", lat " + position.getLocation().getLatitude() + 
+                        " long " + position.getLocation().getLongitude(), 10, y, paint);
                 y += 17;
                 if (angle > MIN_BEARING && angle < MAX_BEARING) {
                     Log.d("whereare", "paint!");
@@ -207,7 +211,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                     canvas.drawBitmap(backgroundBitmap, x, markerYPosition, paint);
                     Bitmap contactImg = imageCache.get(position.getContactUri());
                     if (contactImg != null) {
-                        canvas.drawBitmap(contactImg, x + 5, markerYPosition + 5, paint);
+                        canvas.drawBitmap(contactImg, x + 10, markerYPosition + 10, paint);
                     }
                     
                     Rect clipBounds = canvas.getClipBounds();
@@ -217,7 +221,7 @@ public class WhereAreDisplay extends Activity implements SensorEventListener {
                     paint.setTextSize(30);
                     canvas.drawText(position.getName(), x + 105, markerYPosition + 40, paint);
                     paint.setTextSize(24);
-                    canvas.drawText(position.getDistance() + "m", 
+                    canvas.drawText(Utils.formatDistance(position.getDistance()), 
                             x + 105, markerYPosition + backgroundBitmap.getHeight() * 0.9f, paint);
                     canvas.clipRect(clipBounds, Region.Op.REPLACE);
                     markerYPosition -= backgroundBitmap.getHeight() * 0.7;
